@@ -1,0 +1,57 @@
+name: Bug report
+description: Something isn't working as expected
+labels: [bug]
+body:
+  - type: markdown
+    attributes:
+      value: Thanks for the report! Please check the [troubleshooting guide](https://github.com/deanlongstaff/streamdeck-gif-paste#troubleshooting) first.
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: What happened?
+      description: What you did, what you expected, and what happened instead.
+    validations:
+      required: true
+  - type: input
+    id: gif
+    attributes:
+      label: GIF source
+      description: The URL you used, or "local file". This helps a lot with download and animation issues.
+  - type: dropdown
+    id: paste-mode
+    attributes:
+      label: Paste as
+      options: [GIF file, Link, Not relevant]
+  - type: input
+    id: app
+    attributes:
+      label: App you pasted into
+      placeholder: e.g. Slack desktop 4.41, Teams (new), Outlook web
+  - type: input
+    id: plugin-version
+    attributes:
+      label: Plugin version
+      description: Shown in Stream Deck → Preferences → Plugins.
+      placeholder: e.g. 3.0.0
+    validations:
+      required: true
+  - type: input
+    id: os
+    attributes:
+      label: Operating system
+      placeholder: e.g. macOS 15.5, Windows 11 24H2
+    validations:
+      required: true
+  - type: input
+    id: streamdeck-version
+    attributes:
+      label: Stream Deck app version
+      placeholder: e.g. 6.9.1
+  - type: textarea
+    id: logs
+    attributes:
+      label: Logs
+      description: |
+        Relevant lines from the plugin log. Lines from this plugin contain `[gifpaste]`.
+        macOS: `~/Library/Logs/ElgatoStreamDeck/` · Windows: `%APPDATA%\Elgato\StreamDeck\logs`
+      render: text
