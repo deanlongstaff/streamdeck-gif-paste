@@ -9,7 +9,7 @@ A Stream Deck plugin for macOS that pastes a GIF with one key press. Give each k
 
 ## Install
 
-Download `com.dean.gifpaste.streamDeckPlugin` from [Releases](../../releases) and double-click it.
+Download `com.deanlongstaff.gifpaste.streamDeckPlugin` from [Releases](../../releases) and double-click it.
 
 On first use, allow Stream Deck under **System Settings → Privacy & Security → Accessibility**. The plugin needs this to send ⌘V.
 
@@ -19,13 +19,13 @@ On first use, allow Stream Deck under **System Settings → Privacy & Security �
 2. Paste a GIF URL into **GIF**, or click **Browse…** to choose a local file.
 3. The key downloads the GIF and starts animating. The status line shows `Ready` or the error.
 
-**Re-download** clears the cached copy for that key. GIFs are cached in `~/Library/Caches/com.dean.gifpaste`.
+**Re-download** clears the cached copy for that key. GIFs are cached in `~/Library/Caches/com.deanlongstaff.gifpaste`.
 
 ## Develop
 
 ```bash
 ./scripts/dev-install.sh   # symlink this repo into Stream Deck and restart it
-./scripts/package.sh       # build dist/com.dean.gifpaste.streamDeckPlugin
+./scripts/package.sh       # build dist/com.deanlongstaff.gifpaste.streamDeckPlugin
 ```
 
 After editing, restart Stream Deck to reload the plugin. Plugin logs are in `~/Library/Logs/ElgatoStreamDeck/`.

@@ -9,7 +9,7 @@ const path = require('path');
 const os = require('os');
 const { execFile } = require('child_process');
 
-const CACHE_DIR = path.join(os.homedir(), 'Library/Caches/com.dean.gifpaste');
+const CACHE_DIR = path.join(os.homedir(), 'Library/Caches/com.deanlongstaff.gifpaste');
 const FRAMES_JS = path.join(__dirname, 'frames.js');
 const KEY_SIZE = 144;
 const MAX_FRAMES = 60;

@@ -4,7 +4,7 @@
   "Author": "Dean Longstaff",
   "Description": "Paste an animated GIF from a URL. The key shows the GIF, animated.",
   "URL": "https://github.com/deanlongstaff/streamdeck-gif-paste",
-  "UUID": "com.dean.gifpaste",
+  "UUID": "com.deanlongstaff.gifpaste",
   "Icon": "imgs/plugin",
   "Category": "GIF Paste",
   "CategoryIcon": "imgs/category",
@@ -25,7 +25,7 @@
   "Actions": [
     {
       "Name": "Paste GIF",
-      "UUID": "com.dean.gifpaste.paste",
+      "UUID": "com.deanlongstaff.gifpaste.paste",
       "Icon": "imgs/action",
       "Tooltip": "Paste a GIF from a URL",
       "PropertyInspectorPath": "pi.html",

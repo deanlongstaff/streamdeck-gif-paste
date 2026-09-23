@@ -1,5 +1,5 @@
 #!/bin/bash
-# Validates and builds dist/com.dean.gifpaste.streamDeckPlugin using Elgato's CLI.
+# Validates and builds dist/com.deanlongstaff.gifpaste.streamDeckPlugin using Elgato's CLI.
 set -euo pipefail
 cd "$(dirname "$0")/.."
-npx -y @elgato/cli@1 pack com.dean.gifpaste.sdPlugin -o dist --force
+npx -y @elgato/cli@1 pack com.deanlongstaff.gifpaste.sdPlugin -o dist --force

@@ -3,7 +3,7 @@
 set -euo pipefail
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 PLUGINS="$HOME/Library/Application Support/com.elgato.StreamDeck/Plugins"
-NAME="com.dean.gifpaste.sdPlugin"
+NAME="com.deanlongstaff.gifpaste.sdPlugin"
 
 mkdir -p "$PLUGINS"
 rm -rf "${PLUGINS:?}/$NAME"
