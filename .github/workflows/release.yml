@@ -17,10 +17,10 @@ jobs:
   validate:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
         with:
-          node-version: 20
+          node-version: 22
       - run: npx -y "$CLI" validate "$PLUGIN"
 
   release-please:
@@ -43,10 +43,10 @@ jobs:
     if: needs.release-please.outputs.created == 'true'
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
         with:
-          node-version: 20
+          node-version: 22
       - name: Pack (stamps manifest Version as x.y.z.0)
         run: npx -y "$CLI" pack "$PLUGIN" --version "${{ needs.release-please.outputs.version }}" -o dist --force
       - name: Attach to release
