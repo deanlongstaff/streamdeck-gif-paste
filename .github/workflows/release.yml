@@ -2,18 +2,60 @@ name: Release
 
 on:
   push:
-    tags: ['v*']
+    branches: [main]
+  pull_request:
 
 permissions:
   contents: write
+  pull-requests: write
+
+env:
+  PLUGIN: com.dean.gifpaste.sdPlugin
+  CLI: "@elgato/cli@1"
 
 jobs:
-  release:
+  validate:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - run: bash scripts/package.sh
-      - uses: softprops/action-gh-release@v2
+      - uses: actions/setup-node@v4
         with:
-          files: dist/com.dean.gifpaste.streamDeckPlugin
-          generate_release_notes: true
+          node-version: 20
+      - run: npx -y "$CLI" validate "$PLUGIN"
+
+  release-please:
+    if: github.event_name == 'push'
+    needs: validate
+    runs-on: ubuntu-latest
+    outputs:
+      created: ${{ steps.rp.outputs.release_created }}
+      tag: ${{ steps.rp.outputs.tag_name }}
+      version: ${{ steps.rp.outputs.version }}
+    steps:
+      - id: rp
+        uses: googleapis/release-please-action@v4
+        with:
+          config-file: release-please-config.json
+          manifest-file: .release-please-manifest.json
+
+  package:
+    needs: release-please
+    if: needs.release-please.outputs.created == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Pack (stamps manifest Version as x.y.z.0)
+        run: npx -y "$CLI" pack "$PLUGIN" --version "${{ needs.release-please.outputs.version }}" -o dist --force
+      - name: Attach to release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh release upload "${{ needs.release-please.outputs.tag }}" dist/com.dean.gifpaste.streamDeckPlugin --clobber
+      - name: Marketplace hand-off
+        run: |
+          {
+            echo "### ${{ needs.release-please.outputs.tag }} packaged"
+            echo "Download \`com.dean.gifpaste.streamDeckPlugin\` from the release and submit it as a new version in [Maker Console](https://maker.elgato.com)."
+          } >> "$GITHUB_STEP_SUMMARY"

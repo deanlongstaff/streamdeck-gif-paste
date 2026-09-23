@@ -41,8 +41,10 @@ Stream Deck's `setImage` does not accept animated GIFs, so the plugin decodes th
 
 ## Release
 
-```bash
-git tag v2.0.0 && git push --tags
-```
+Releases are managed by [release-please](https://github.com/googleapis/release-please) using [Conventional Commits](https://www.conventionalcommits.org):
 
-GitHub Actions builds the `.streamDeckPlugin` and attaches it to a release.
+- `fix: …` → patch, `feat: …` → minor, `feat!: …` → major. Other types (`chore:`, `docs:`, `ci:`) don't trigger a release.
+- Pushes to `main` update a **release PR** with the next version and `CHANGELOG.md`.
+- Merging that PR tags the release, then CI packs a validated `.streamDeckPlugin` (with the manifest `Version` stamped to match) and attaches it to the GitHub release.
+
+The Elgato Marketplace has no publishing API, so the last step is manual: download the file from the release and submit it as a new version in [Maker Console](https://maker.elgato.com).
