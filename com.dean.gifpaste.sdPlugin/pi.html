@@ -1,0 +1,77 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<style>
+  body { font: 12px -apple-system, sans-serif; color: #d8d8d8; background: #2d2d2d; margin: 8px 10px; }
+  .row { display: grid; grid-template-columns: 90px 1fr; align-items: center; gap: 8px; margin-bottom: 8px; }
+  label { color: #969696; text-align: right; }
+  input[type=text], select { width: 100%; box-sizing: border-box; background: #3d3d3d; color: #d8d8d8;
+    border: 0; border-radius: 3px; padding: 5px 6px; font: inherit; }
+  button { background: #3d3d3d; color: #d8d8d8; border: 0; border-radius: 3px; padding: 5px 10px; font: inherit; cursor: pointer; }
+  button:hover { background: #4a4a4a; }
+  #status { color: #969696; }
+  #status.err { color: #ff6b6b; }
+</style>
+</head>
+<body>
+  <div class="row">
+    <label for="url">GIF URL</label>
+    <input id="url" type="text" placeholder="https://… or ~/path/to.gif" spellcheck="false">
+  </div>
+  <div class="row">
+    <label for="mode">Paste as</label>
+    <select id="mode">
+      <option value="file">GIF file (upload)</option>
+      <option value="link">Link</option>
+    </select>
+  </div>
+  <div class="row">
+    <label for="animate">Key icon</label>
+    <span><input id="animate" type="checkbox" checked> Animate</span>
+  </div>
+  <div class="row">
+    <label></label>
+    <span><button id="refresh">Re-download</button> <span id="status"></span></span>
+  </div>
+<script>
+  const $ = id => document.getElementById(id);
+  let ws, ctx, action, settings = {};
+
+  function connectElgatoStreamDeckSocket(port, uuid, registerEvent, info, actionInfo) {
+    const ai = JSON.parse(actionInfo);
+    ctx = uuid;
+    action = ai.action;
+    settings = ai.payload.settings || {};
+    $('url').value = settings.url || '';
+    $('mode').value = settings.mode || 'file';
+    $('animate').checked = settings.animate !== false;
+
+    ws = new WebSocket('ws://127.0.0.1:' + port);
+    ws.onopen = () => {
+      ws.send(JSON.stringify({ event: registerEvent, uuid }));
+      ws.send(JSON.stringify({ event: 'sendToPlugin', action, context: ctx, payload: {} }));
+    };
+    ws.onmessage = e => {
+      const m = JSON.parse(e.data);
+      if (m.event === 'sendToPropertyInspector' && m.payload.status !== undefined) {
+        $('status').textContent = m.payload.status;
+        $('status').className = m.payload.ok ? '' : 'err';
+      }
+    };
+  }
+
+  function save() {
+    settings = { url: $('url').value.trim(), mode: $('mode').value, animate: $('animate').checked };
+    ws.send(JSON.stringify({ event: 'setSettings', context: ctx, payload: settings }));
+  }
+
+  $('url').addEventListener('change', save);
+  $('url').addEventListener('paste', () => setTimeout(save, 0));
+  $('mode').addEventListener('change', save);
+  $('animate').addEventListener('change', save);
+  $('refresh').addEventListener('click', () =>
+    ws.send(JSON.stringify({ event: 'sendToPlugin', action, context: ctx, payload: { refresh: true } })));
+</script>
+</body>
+</html>

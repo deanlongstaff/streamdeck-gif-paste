@@ -1,0 +1,44 @@
+{
+  "Name": "GIF Paste",
+  "Version": "2.0.0.0",
+  "Author": "Dean Longstaff",
+  "Description": "Paste an animated GIF from a URL. The key shows the GIF, animated.",
+  "URL": "https://github.com/deanlongstaff/streamdeck-gif-paste",
+  "UUID": "com.dean.gifpaste",
+  "Icon": "imgs/plugin",
+  "Category": "GIF Paste",
+  "CategoryIcon": "imgs/category",
+  "CodePath": "plugin.js",
+  "SDKVersion": 2,
+  "Software": {
+    "MinimumVersion": "6.4"
+  },
+  "OS": [
+    {
+      "Platform": "mac",
+      "MinimumVersion": "12"
+    }
+  ],
+  "Nodejs": {
+    "Version": "20"
+  },
+  "Actions": [
+    {
+      "Name": "Paste GIF",
+      "UUID": "com.dean.gifpaste.paste",
+      "Icon": "imgs/action",
+      "Tooltip": "Paste a GIF from a URL",
+      "PropertyInspectorPath": "pi.html",
+      "Controllers": [
+        "Keypad"
+      ],
+      "SupportedInMultiActions": true,
+      "States": [
+        {
+          "Image": "imgs/key",
+          "ShowTitle": false
+        }
+      ]
+    }
+  ]
+}
