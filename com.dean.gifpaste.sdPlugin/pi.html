@@ -10,14 +10,20 @@
     border: 0; border-radius: 3px; padding: 5px 6px; font: inherit; }
   button { background: #3d3d3d; color: #d8d8d8; border: 0; border-radius: 3px; padding: 5px 10px; font: inherit; cursor: pointer; }
   button:hover { background: #4a4a4a; }
+  .pick { display: flex; gap: 6px; }
+  .pick input[type=text] { flex: 1; min-width: 0; }
   #status { color: #969696; }
   #status.err { color: #ff6b6b; }
 </style>
 </head>
 <body>
   <div class="row">
-    <label for="url">GIF URL</label>
-    <input id="url" type="text" placeholder="https://… or ~/path/to.gif" spellcheck="false">
+    <label for="url">GIF</label>
+    <span class="pick">
+      <input id="url" type="text" placeholder="https://… or choose a file" spellcheck="false">
+      <button id="browse" title="Choose a GIF file">Browse…</button>
+      <input id="file" type="file" accept=".gif,image/gif" hidden>
+    </span>
   </div>
   <div class="row">
     <label for="mode">Paste as</label>
@@ -67,6 +73,15 @@
   }
 
   $('url').addEventListener('change', save);
+  $('browse').addEventListener('click', () => $('file').click());
+  $('file').addEventListener('change', () => {
+    // Stream Deck returns the real path behind a "C:\fakepath\" prefix, URI-encoded.
+    const p = decodeURIComponent($('file').value.replace(/^C:\\fakepath\\/, ''));
+    $('file').value = '';
+    if (!p) return;
+    $('url').value = p;
+    save();
+  });
   $('url').addEventListener('paste', () => setTimeout(save, 0));
   $('mode').addEventListener('change', save);
   $('animate').addEventListener('change', save);

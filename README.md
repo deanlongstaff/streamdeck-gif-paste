@@ -3,7 +3,7 @@
 A Stream Deck plugin for macOS that pastes a GIF with one key press. Give each key a GIF URL. The key shows the GIF, animated, and pressing it pastes the GIF into whatever app has focus (Teams, Slack, Outlook, Discord, …).
 
 - Works with direct `.gif` links and with Giphy and Tenor page links.
-- Also accepts a local file path (`~/Pictures/thing.gif`).
+- Also accepts a local GIF: click **Browse…** to pick one in Finder, or type a path (`~/Pictures/thing.gif`).
 - **Paste as GIF file** uploads the animated GIF itself. **Paste as Link** pastes the URL, which Slack and Discord expand.
 - No dependencies. It uses Stream Deck's built-in Node.js and macOS's own image APIs.
 
@@ -16,7 +16,7 @@ On first use, allow Stream Deck under **System Settings → Privacy & Security �
 ## Use
 
 1. Drag **GIF Paste → Paste GIF** onto a key.
-2. Paste a GIF URL into **GIF URL**.
+2. Paste a GIF URL into **GIF**, or click **Browse…** to choose a local file.
 3. The key downloads the GIF and starts animating. The status line shows `Ready` or the error.
 
 **Re-download** clears the cached copy for that key. GIFs are cached in `~/Library/Caches/com.dean.gifpaste`.
