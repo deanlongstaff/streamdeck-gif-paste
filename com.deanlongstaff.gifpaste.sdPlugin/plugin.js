@@ -1,4 +1,4 @@
-// GIF Paste — Stream Deck plugin (macOS, no dependencies).
+// GIF Paste — Stream Deck plugin (macOS + Windows, no dependencies).
 // Each key takes a GIF URL (or local path), shows it animated on the key,
 // and pastes it into the focused app when pressed.
 const net = require('net');
@@ -7,10 +7,12 @@ const fs = require('fs');
 const fsp = require('fs/promises');
 const path = require('path');
 const os = require('os');
-const { execFile } = require('child_process');
+const { renderKeyFrames } = require('./gif');
+const { pasteFile, pasteText } = require('./paste');
 
-const CACHE_DIR = path.join(os.homedir(), 'Library/Caches/com.deanlongstaff.gifpaste');
-const FRAMES_JS = path.join(__dirname, 'frames.js');
+const CACHE_DIR = process.platform === 'win32'
+  ? path.join(process.env.LOCALAPPDATA || path.join(os.homedir(), 'AppData', 'Local'), 'com.deanlongstaff.gifpaste', 'Cache')
+  : path.join(os.homedir(), 'Library', 'Caches', 'com.deanlongstaff.gifpaste');
 const KEY_SIZE = 144;
 const MAX_FRAMES = 60;
 const MIN_FRAME_MS = 66;          // ~15 fps cap for setImage
@@ -21,9 +23,7 @@ for (let i = 2; i < process.argv.length; i += 2) args[process.argv[i].slice(1)] 
 
 // ---------- helpers ----------
 
-const run = (cmd, argv, opts = {}) => new Promise((resolve, reject) =>
-  execFile(cmd, argv, { maxBuffer: 256 * 1024 * 1024, ...opts },
-    (err, stdout, stderr) => err ? reject(new Error(stderr?.trim() || err.message)) : resolve(stdout)));
+const cacheDir = source => path.join(CACHE_DIR, crypto.createHash('sha256').update(source).digest('hex').slice(0, 16));
 
 const isGif = buf => buf.length > 6 && buf.subarray(0, 4).toString('latin1') === 'GIF8';
 
@@ -67,11 +67,11 @@ async function download(url) {
 // Returns the local file path for a source (URL or path), downloading and caching URLs.
 async function resolveFile(source) {
   if (!/^https?:\/\//i.test(source)) {
-    const p = source.replace(/^~(?=\/|$)/, os.homedir());
+    const p = source.replace(/^~(?=[\\/]|$)/, os.homedir());
     if (!fs.existsSync(p)) throw new Error('File not found');
     return p;
   }
-  const dir = path.join(CACHE_DIR, crypto.createHash('sha256').update(source).digest('hex').slice(0, 16));
+  const dir = cacheDir(source);
   const file = path.join(dir, safeName(source));
   if (fs.existsSync(file)) return file;
   const buf = await download(source);
@@ -82,17 +82,8 @@ async function resolveFile(source) {
 }
 
 async function renderFrames(file) {
-  try {
-    const out = await run('osascript', ['-l', 'JavaScript', FRAMES_JS, file, String(KEY_SIZE), String(MAX_FRAMES)]);
-    const frames = JSON.parse(out);
-    if (frames.length) return frames.map(f => ({ ms: Math.max(MIN_FRAME_MS, f.ms || 100), img: `data:image/png;base64,${f.png}` }));
-  } catch (e) { log(`frames.js failed: ${e.message}`); }
-  // Fallback: static first frame via sips
-  const png = path.join(os.tmpdir(), `gifpaste-${process.pid}-${Date.now()}.png`);
-  await run('sips', ['-s', 'format', 'png', '-Z', String(KEY_SIZE), file, '--out', png]);
-  const b64 = (await fsp.readFile(png)).toString('base64');
-  fsp.unlink(png).catch(() => {});
-  return [{ ms: 0, img: `data:image/png;base64,${b64}` }];
+  const frames = await renderKeyFrames(file, KEY_SIZE, MAX_FRAMES);
+  return frames.map(f => ({ ms: Math.max(MIN_FRAME_MS, f.ms), img: `data:image/png;base64,${f.png.toString('base64')}` }));
 }
 
 // Share work between keys using the same GIF.
@@ -108,26 +99,6 @@ function load(source) {
   }
   return loads.get(source);
 }
-
-const PASTE_FILE = [
-  'use framework "AppKit"',
-  'use scripting additions',
-  'on run argv',
-  "set pb to current application's NSPasteboard's generalPasteboard()",
-  "pb's clearContents()",
-  "pb's writeObjects:{current application's NSURL's fileURLWithPath:(item 1 of argv)}",
-  'delay 0.05',
-  'tell application "System Events" to keystroke "v" using command down',
-  'end run'
-].flatMap(l => ['-e', l]);
-
-const PASTE_TEXT = [
-  'on run argv',
-  'set the clipboard to (item 1 of argv)',
-  'delay 0.05',
-  'tell application "System Events" to keystroke "v" using command down',
-  'end run'
-].flatMap(l => ['-e', l]);
 
 // ---------- key state ----------
 
@@ -185,10 +156,10 @@ async function paste(context, settings) {
   if (!source) return send({ event: 'showAlert', context });
   try {
     if (settings.mode === 'link' && /^https?:\/\//i.test(source)) {
-      await run('osascript', [...PASTE_TEXT, source]);
+      await pasteText(source);
     } else {
       const { file } = await load(source);
-      await run('osascript', [...PASTE_FILE, file]);
+      await pasteFile(file);
     }
   } catch (e) {
     log(`paste failed: ${e.message}`);
@@ -225,8 +196,7 @@ function onMessage(m) {
         const src = (keys.get(context)?.settings.url || '').trim();
         if (src) {
           loads.delete(src);
-          const dir = path.join(CACHE_DIR, crypto.createHash('sha256').update(src).digest('hex').slice(0, 16));
-          fs.rmSync(dir, { recursive: true, force: true });
+          fs.rmSync(cacheDir(src), { recursive: true, force: true });
         }
       }
       prepare(context);

@@ -2,7 +2,7 @@
   "Name": "GIF Paste",
   "Version": "2.0.0.0",
   "Author": "Dean Longstaff",
-  "Description": "Paste an animated GIF from a URL. The key shows the GIF, animated.",
+  "Description": "Paste an animated GIF from a URL or file. The key shows the GIF, animated.",
   "URL": "https://github.com/deanlongstaff/streamdeck-gif-paste",
   "UUID": "com.deanlongstaff.gifpaste",
   "Icon": "imgs/plugin",
@@ -17,6 +17,10 @@
     {
       "Platform": "mac",
       "MinimumVersion": "12"
+    },
+    {
+      "Platform": "windows",
+      "MinimumVersion": "10"
     }
   ],
   "Nodejs": {
