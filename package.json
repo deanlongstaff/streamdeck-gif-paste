@@ -1,0 +1,15 @@
+{
+  "name": "streamdeck-gif-paste",
+  "private": true,
+  "description": "Stream Deck plugin that pastes animated GIFs with one key press.",
+  "license": "MIT",
+  "repository": "github:deanlongstaff/streamdeck-gif-paste",
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "test": "node --test",
+    "validate": "npx -y @elgato/cli@1 validate com.deanlongstaff.gifpaste.sdPlugin",
+    "package": "bash scripts/package.sh"
+  }
+}
